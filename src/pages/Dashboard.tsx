@@ -84,7 +84,7 @@ export function Dashboard() {
             )}
           </Button>
         </div>
-      </Card> // Convert numeric timestamp to readable format
+      </Card>
 
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-gray-900">Your Messages</h2>
