@@ -1,9 +1,11 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+
 import { Layout } from './components/Layout';
-import { Home } from './pages/Home';
 import { Dashboard } from './pages/Dashboard';
-import { MessageForm } from './pages/MessageForm';
+import GetStarted from './pages/GetStarted';
+import { Home } from './pages/Home';
+import { MessageCard } from './components/MessageCard';
+
 
 function App() {
   return (
@@ -11,8 +13,9 @@ function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/get-started" element={<GetStarted />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/msg/:username" element={<MessageForm />} />
+          <Route path="/msg/:uid" element={<MessageCard />} />
         </Routes>
       </Layout>
     </Router>

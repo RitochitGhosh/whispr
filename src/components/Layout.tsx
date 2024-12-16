@@ -1,12 +1,36 @@
-import React from 'react';
-import { MessageCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { MessageCircle, Twitter, Instagram, Linkedin } from 'lucide-react';
+
 import { Link } from 'react-router-dom';
+import { getAuth, signOut, User } from 'firebase/auth';
+import { app } from '../firebase';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
+const auth = getAuth(app);
+
 export function Layout({ children }: LayoutProps) {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser);
+    });
+
+    // Cleanup on unmount
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-sm">
@@ -16,8 +40,22 @@ export function Layout({ children }: LayoutProps) {
             <span className="text-xl font-bold text-gray-900">Whispr</span>
           </Link>
           <div className="flex space-x-4">
-            <Link to="/about" className="text-gray-600 hover:text-gray-900">About</Link>
-            <Link to="/support" className="text-gray-600 hover:text-gray-900">Support</Link>
+            {user ? (
+              <>
+                <span className="text-gray-600 cursor-pointer hover:text-indigo-600 transition">{user.email}</span>
+                <button
+                  onClick={handleLogout}
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/get-started" className="text-gray-600 hover:text-gray-900">Get Started</Link>
+                <Link to="/login" className="text-gray-600 hover:text-gray-900">Login</Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -27,28 +65,37 @@ export function Layout({ children }: LayoutProps) {
       </main>
 
       <footer className="bg-white border-t mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900">Legal</h3>
-              <div className="mt-4 space-y-2">
-                <Link to="/terms" className="text-sm text-gray-600 hover:text-gray-900 block">Terms of Service</Link>
-                <Link to="/privacy" className="text-sm text-gray-600 hover:text-gray-900 block">Privacy Policy</Link>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900">Social</h3>
-              <div className="mt-4 space-y-2">
-                <a href="https://twitter.com" className="text-sm text-gray-600 hover:text-gray-900 block">Twitter</a>
-                <a href="https://instagram.com" className="text-sm text-gray-600 hover:text-gray-900 block">Instagram</a>
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 border-t pt-8">
-            <p className="text-sm text-gray-400">© 2024 Whispr. All rights reserved.</p>
-          </div>
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div>
+        <h3 className="text-sm font-semibold text-gray-900">Usage:</h3>
+        <div className="mt-4 space-y-2 text-gray-600">
+          <p>Copy your unique message link and share it across various social media platforms.</p>
         </div>
-      </footer>
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold text-gray-900">Social</h3>
+        <div className="mt-4 space-y-2">
+          <a href="https://twitter.com" className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition">
+            <Twitter className="w-5 h-5" />
+            <span>Twitter</span>
+          </a>
+          <a href="https://instagram.com" className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition">
+            <Instagram className="w-5 h-5" />
+            <span>Instagram</span>
+          </a>
+          <a href="https://linkedin.com" className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition">
+            <Linkedin className="w-5 h-5" />
+            <span>LinkedIn</span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div className="mt-8 border-t pt-8">
+      <p className="text-sm text-gray-400">© 2024 Whispr. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
     </div>
   );
 }

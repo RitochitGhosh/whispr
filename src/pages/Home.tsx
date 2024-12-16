@@ -1,9 +1,29 @@
-import React from 'react';
 import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
+import { app } from '../firebase';
+import { useEffect, useState } from 'react';
+
+const auth = getAuth(app);
 
 export function Home() {
+  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        navigate('/dashboard');
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
+
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center text-center px-4">
       <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">

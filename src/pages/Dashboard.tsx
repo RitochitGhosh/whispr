@@ -1,20 +1,61 @@
-import React, { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { doc, getFirestore, onSnapshot } from 'firebase/firestore';
+import { Check, Copy } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
-import { MessageCard } from '../components/MessageCard';
-import type { Message } from '../types';
+import { app } from '../firebase';
+import { useNavigate } from 'react-router-dom';
+import { getAuth } from 'firebase/auth';
+
+const auth = getAuth(app);
+const firestore = getFirestore(app);
+
+interface Message {
+  id: string;
+  content: string;
+  timestamp: string;
+}
 
 export function Dashboard() {
   const [copied, setCopied] = useState(false);
-  const userLink = `${window.location.origin}/msg/user123`;
-  
-  const messages: Message[] = [
-    { id: '1', content: "You're awesome!", timestamp: '2 hours ago' },
-    { id: '2', content: "Keep up the great work!", timestamp: '5 hours ago' },
-  ];
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        navigate('/');
+      } else {
+        setUserId(user.uid);
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const userDocRef = doc(firestore, 'users', userId);
+    const unsubscribe = onSnapshot(userDocRef, (doc) => {
+      const data = doc.data();
+      const fetchedMessages = data?.messages || [];
+      setMessages(
+        fetchedMessages.map((msg: any, idx: number) => ({
+          id: `${idx}`,
+          content: msg.content,
+          timestamp: new Date(msg.timestamp).toLocaleString(),
+        }))
+      );
+    });
+    
+    return () => unsubscribe();
+  }, [userId]);
+
+  const userLink = userId ? `${window.location.origin}/msg/${userId}` : '';
   const copyLink = () => {
+    if (!userLink) return;
+
     navigator.clipboard.writeText(userLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -31,26 +72,37 @@ export function Dashboard() {
             readOnly
             className="flex-1 bg-white/10 rounded-lg px-4 py-2 text-sm"
           />
-          <Button
-            variant="secondary"
-            onClick={copyLink}
-            className="flex items-center space-x-2"
-          >
+          <Button variant="secondary" onClick={copyLink} className="flex items-center space-x-2">
             {copied ? (
-              <><Check className="w-4 h-4" /> <span>Copied!</span></>
+              <>
+                <Check className="w-4 h-4" /> <span>Copied!</span>
+              </>
             ) : (
-              <><Copy className="w-4 h-4" /> <span>Copy</span></>
+              <>
+                <Copy className="w-4 h-4" /> <span>Copy</span>
+              </>
             )}
           </Button>
         </div>
-      </Card>
+      </Card> // Convert numeric timestamp to readable format
 
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-gray-900">Your Messages</h2>
-        {messages.map((message) => (
-          <MessageCard key={message.id} message={message} />
-        ))}
+        {messages.length === 0 ? (
+          <p className="text-gray-600">No messages yet!</p>
+        ) : (
+          messages.map((message) => <MessageDisplayCard key={message.id} message={message} />)
+        )}
       </div>
     </div>
+  );
+}
+
+function MessageDisplayCard({ message }: { message: Message }) {
+  return (
+    <Card className="p-4 border border-gray-200 rounded-lg">
+      <p className="text-gray-800">{message.content}</p>
+      <span className="text-sm text-gray-500">{message.timestamp}</span>
+    </Card>
   );
 }
