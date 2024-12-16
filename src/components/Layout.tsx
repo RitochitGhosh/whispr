@@ -1,6 +1,6 @@
+// Layout.tsx
 import React, { useEffect, useState } from 'react';
 import { MessageCircle, Twitter, Instagram, Linkedin } from 'lucide-react';
-
 import { Link } from 'react-router-dom';
 import { getAuth, signOut, User } from 'firebase/auth';
 import { app } from '../firebase';
@@ -19,7 +19,6 @@ export function Layout({ children }: LayoutProps) {
       setUser(currentUser);
     });
 
-    // Cleanup on unmount
     return () => unsubscribe();
   }, []);
 
@@ -27,75 +26,84 @@ export function Layout({ children }: LayoutProps) {
     try {
       await signOut(auth);
     } catch (error) {
-      console.error("Logout failed", error);
+      console.error('Logout failed', error);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
             <MessageCircle className="w-8 h-8 text-indigo-600" />
             <span className="text-xl font-bold text-gray-900">Whispr</span>
           </Link>
-          <div className="flex space-x-4">
-            {user ? (
+          <div className="flex items-center space-x-4">
+            {user && (
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition"
+              >
+                Logout
+              </button>
+            )}
+            {!user && (
               <>
-                <span className="text-gray-600 cursor-pointer hover:text-indigo-600 transition">{user.email}</span>
-                <button
-                  onClick={handleLogout}
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link to="/get-started" className="text-gray-600 hover:text-gray-900">Get Started</Link>
-                <Link to="/login" className="text-gray-600 hover:text-gray-900">Login</Link>
+                <Link to="/get-started" className="text-gray-600 hover:text-gray-900">
+                  Get Started
+                </Link>
+                <Link to="/login" className="text-gray-600 hover:text-gray-900">
+                  Login
+                </Link>
               </>
             )}
           </div>
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
-      </main>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">{children}</main>
 
       <footer className="bg-white border-t mt-auto">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-      <div>
-        <h3 className="text-sm font-semibold text-gray-900">Usage:</h3>
-        <div className="mt-4 space-y-2 text-gray-600">
-          <p>Copy your unique message link and share it across various social media platforms.</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900">Usage:</h3>
+              <p className="mt-4 text-gray-600">
+                Copy your unique message link and share it across various social media platforms.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900">Social</h3>
+              <div className="mt-4 space-y-2">
+                <a
+                  href="https://twitter.com"
+                  className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition"
+                >
+                  <Twitter className="w-5 h-5" />
+                  <span>Twitter</span>
+                </a>
+                <a
+                  href="https://instagram.com"
+                  className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition"
+                >
+                  <Instagram className="w-5 h-5" />
+                  <span>Instagram</span>
+                </a>
+                <a
+                  href="https://linkedin.com"
+                  className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition"
+                >
+                  <Linkedin className="w-5 h-5" />
+                  <span>LinkedIn</span>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 border-t pt-8">
+            <p className="text-sm text-gray-400">© 2024 Whispr. All rights reserved.</p>
+          </div>
         </div>
-      </div>
-      <div>
-        <h3 className="text-sm font-semibold text-gray-900">Social</h3>
-        <div className="mt-4 space-y-2">
-          <a href="https://twitter.com" className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition">
-            <Twitter className="w-5 h-5" />
-            <span>Twitter</span>
-          </a>
-          <a href="https://instagram.com" className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition">
-            <Instagram className="w-5 h-5" />
-            <span>Instagram</span>
-          </a>
-          <a href="https://linkedin.com" className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition">
-            <Linkedin className="w-5 h-5" />
-            <span>LinkedIn</span>
-          </a>
-        </div>
-      </div>
-    </div>
-    <div className="mt-8 border-t pt-8">
-      <p className="text-sm text-gray-400">© 2024 Whispr. All rights reserved.</p>
-    </div>
-  </div>
-</footer>
+      </footer>
     </div>
   );
 }

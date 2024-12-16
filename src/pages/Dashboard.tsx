@@ -1,3 +1,4 @@
+// Dashboard.tsx
 import { doc, getFirestore, onSnapshot } from 'firebase/firestore';
 import { Check, Copy } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -48,7 +49,6 @@ export function Dashboard() {
         }))
       );
     });
-    
     return () => unsubscribe();
   }, [userId]);
 
@@ -65,12 +65,12 @@ export function Dashboard() {
     <div className="space-y-8">
       <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
         <h2 className="text-2xl font-bold mb-4">Your Message Link</h2>
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row items-center sm:space-x-4 space-y-4 sm:space-y-0">
           <input
             type="text"
             value={userLink}
             readOnly
-            className="flex-1 bg-white/10 rounded-lg px-4 py-2 text-sm"
+            className="flex-1 bg-white/10 rounded-lg px-4 py-2 text-sm w-full"
           />
           <Button variant="secondary" onClick={copyLink} className="flex items-center space-x-2">
             {copied ? (
@@ -91,7 +91,11 @@ export function Dashboard() {
         {messages.length === 0 ? (
           <p className="text-gray-600">No messages yet!</p>
         ) : (
-          messages.map((message) => <MessageDisplayCard key={message.id} message={message} />)
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {messages.map((message) => (
+              <MessageDisplayCard key={message.id} message={message} />
+            ))}
+          </div>
         )}
       </div>
     </div>

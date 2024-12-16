@@ -1,20 +1,18 @@
-import { useState } from "react";
 import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
+    createUserWithEmailAndPassword,
+    getAuth,
+    signInWithEmailAndPassword
 } from "firebase/auth";
-import { doc, setDoc, getFirestore } from "firebase/firestore";
-import { app } from "../firebase";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
+import { app } from "../firebase";
 
 const firestore = getFirestore(app);
 const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
+
 
 const GetStarted: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState<boolean>(false);
@@ -26,30 +24,6 @@ const GetStarted: React.FC = () => {
     setIsSignUp((prevMode) => !prevMode);
   };
 
-  const signUpWithGoogle = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      await setDoc(doc(firestore, "users", user.uid), {
-        messages: [],
-      });
-
-      Swal.fire({
-        title: "Success",
-        text: `Google sign-in successful! Welcome, ${user.email}`,
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-      navigate("/");
-    } catch (error: any) {
-      Swal.fire({
-        title: "Error",
-        text: `Google sign-in failed: ${error.message}`,
-        icon: "error",
-        confirmButtonText: "Try Again",
-      });
-    }
-  };
 
   const handleSubmit = async (
     event: React.FormEvent<HTMLFormElement>
@@ -163,12 +137,7 @@ const GetStarted: React.FC = () => {
           >
             {isSignUp ? "Sign Up" : "Sign In"}
           </button>
-          <button
-            onClick={signUpWithGoogle}
-            className="w-full border-2 border-indigo-600 transition text-gray-600 hover:text-black py-2 rounded"
-          >
-            Authenticate Using Google
-          </button>
+          
         </form>
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600">
