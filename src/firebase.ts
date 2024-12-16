@@ -1,13 +1,12 @@
 import { FirebaseApp, initializeApp } from 'firebase/app';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBQ9-Hb_N6n6Xa3JS7rcwmJ13LF7gmAbAY",
-    authDomain: "whisper-service.firebaseapp.com",
-    projectId: "whisper-service",
-    storageBucket: "whisper-service.firebasestorage.app",
-    messagingSenderId: "203678682999",
-    appId: "1:203678682999:web:de7fa889771034f3c59b72",
-    databaseURL: "https://whisper-service-default-rtdb.asia-southeast1.firebasedatabase.app"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 export const app: FirebaseApp = initializeApp(firebaseConfig);
